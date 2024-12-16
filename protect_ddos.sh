@@ -23,7 +23,7 @@ apt-get update -y
 
 # Install required packages
 echo_info "Installing required packages..."
-apt-get install -y curl socat git ufw fail2ban iptables iptables-persistent || echo_error "Failed to install packages."
+apt-get install -y curl socat git ufw iptables netfilter-persistent fail2ban || echo_error "Failed to install packages."
 
 # Enable SYN Cookies to protect against SYN Flood attacks
 echo_info "Enabling SYN Cookies..."
@@ -79,7 +79,7 @@ bantime = 600
 [https]
 enabled = true
 port    = 443
-logpath = /var/log/nginx/access.log  # Adjusted for Nginx; change this if using another server
+logpath = /var/log/apache2/access.log
 maxretry = 5
 bantime = 600
 
@@ -96,6 +96,10 @@ systemctl restart fail2ban
 
 # Save iptables rules to make them persistent
 echo_info "Saving iptables rules..."
+# Ensure iptables-persistent directory exists before saving rules
+if [ ! -d "/etc/iptables" ]; then
+  mkdir -p /etc/iptables
+fi
 iptables-save > /etc/iptables/rules.v4
 
 # Final system check
