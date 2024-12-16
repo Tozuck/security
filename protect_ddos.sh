@@ -95,6 +95,7 @@ EOL
 systemctl restart fail2ban
 
 # Save iptables rules to make them persistent
+mkdir /etc/iptables
 touch /etc/iptables/rules.v4
 echo_info "Saving iptables rules..."
 iptables-save > /etc/iptables/rules.v4
