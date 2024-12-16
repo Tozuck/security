@@ -29,6 +29,9 @@ apt-get install -y curl socat git ufw fail2ban iptables || echo_error "Failed to
 echo_info "Enabling SYN Cookies..."
 echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 
+mkdir /etc/iptables
+touch /etc/iptables/rules.v4
+
 # Configure UFW (firewall) to allow necessary ports only
 echo_info "Configuring UFW to allow necessary ports..."
 ufw default deny incoming
