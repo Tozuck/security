@@ -23,7 +23,7 @@ apt-get update -y
 
 # Install required packages
 echo_info "Installing required packages..."
-apt-get install -y curl socat git ufw fail2ban iptables || echo_error "Failed to install packages."
+apt-get install -y curl socat git ufw fail2ban iptables iptables-persistent || echo_error "Failed to install packages."
 
 # Enable SYN Cookies to protect against SYN Flood attacks
 echo_info "Enabling SYN Cookies..."
@@ -79,7 +79,7 @@ bantime = 600
 [https]
 enabled = true
 port    = 443
-logpath = /var/log/apache2/access.log
+logpath = /var/log/nginx/access.log  # Adjusted for Nginx; change this if using another server
 maxretry = 5
 bantime = 600
 
@@ -100,4 +100,3 @@ iptables-save > /etc/iptables/rules.v4
 
 # Final system check
 echo_info "System setup complete! Your server is now more secure against DDoS and SYN Flood attacks."
-
