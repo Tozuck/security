@@ -23,22 +23,21 @@ apt-get update -y
 
 # Install required packages
 echo_info "Installing required packages..."
-apt-get install -y curl socat git ufw iptables netfilter-persistent fail2ban || echo_error "Failed to install packages."
+apt-get install -y curl socat git iptables fail2ban || echo_error "Failed to install packages."
 
 # Enable SYN Cookies to protect against SYN Flood attacks
 echo_info "Enabling SYN Cookies..."
 echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 
-# Configure UFW (firewall) to allow necessary ports only
-echo_info "Configuring UFW to allow necessary ports..."
-ufw default deny incoming
-ufw default allow outgoing
-ufw allow 22    # SSH
-ufw allow 80    # HTTP
-ufw allow 443   # HTTPS
-ufw allow 62050 # VPN Port 1
-ufw allow 62051 # VPN Port 2
-ufw --force enable || echo_error "Failed to enable UFW"
+# Configure iptables to allow necessary ports only
+echo_info "Configuring iptables to allow necessary ports..."
+iptables -F # Flush existing rules
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT # SSH
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT # HTTP
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT # HTTPS
+iptables -A INPUT -p tcp --dport 62050 -j ACCEPT # VPN Port 1
+iptables -A INPUT -p tcp --dport 62051 -j ACCEPT # VPN Port 2
+iptables -A INPUT -j DROP # Drop all other incoming connections
 
 # Set up iptables to prevent SYN Flood attacks and limit incoming connections
 echo_info "Configuring iptables for SYN Flood protection..."
@@ -96,11 +95,13 @@ systemctl restart fail2ban
 
 # Save iptables rules to make them persistent
 echo_info "Saving iptables rules..."
-# Ensure iptables-persistent directory exists before saving rules
-if [ ! -d "/etc/iptables" ]; then
+if ! [ -d /etc/iptables ]; then
   mkdir -p /etc/iptables
 fi
 iptables-save > /etc/iptables/rules.v4
 
 # Final system check
 echo_info "System setup complete! Your server is now more secure against DDoS and SYN Flood attacks."
+
+# Reboot recommendation
+echo_info "For the changes to take effect fully, it is recommended to reboot your system."
